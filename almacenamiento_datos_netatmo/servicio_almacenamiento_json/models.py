@@ -1,3 +1,57 @@
 from django.db import models
 
-# Create your models here.
+
+class Users(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    mail = models.CharField(max_length=255)
+    lang = models.CharField(max_length=255)
+    reg_locale = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    unit = models.CharField(max_length=255)
+    windunit = models.IntegerField()
+    pressureunit = models.IntegerField()
+    feel_like_algo = models.IntegerField()
+
+class Place(models.Model):
+    place_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    altitude = models.IntegerField()
+    city = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    timezone = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+
+class Device(models.Model):
+    device_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    _id = models.CharField(max_length=255, unique=True)
+    date_setup = models.IntegerField()
+    last_setup = models.IntegerField()
+    type = models.CharField(max_length=255)
+    last_status_store = models.IntegerField()
+    module_name = models.CharField(max_length=255)
+    firmware = models.IntegerField()
+    last_upgrade = models.IntegerField()
+    wifi_status = models.IntegerField()
+    reachable = models.BooleanField()
+    co2_calibrating = models.BooleanField()
+    station_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    read_only = models.BooleanField()
+
+class Data(models.Model):
+    data_id = models.AutoField(primary_key=True)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    time_utc = models.IntegerField()
+    Temperature = models.FloatField()
+    CO2 = models.IntegerField()
+    Humidity = models.IntegerField()
+    Noise = models.IntegerField()
+    Pressure = models.IntegerField()
+    AbsolutePressure = models.FloatField()
+    health_idx = models.IntegerField()
+    min_temp = models.FloatField()
+    max_temp = models.FloatField()
+    date_max_temp = models.IntegerField()
+    date_min_temp = models.IntegerField()
