@@ -11,7 +11,7 @@ from main.models import DeviceModel, Patient
 
 
 # This class is to manage the Netatmo API
-class Netatmo_Client:
+class NetatmoClient:
     def __init__(self):
         self.client_id = credentials.client_id
         self.client_secret = credentials.client_secret
@@ -62,7 +62,8 @@ class Netatmo_Client:
                 "grant_type": "refresh_token",
                 "refresh_token": self.refresh_token,
                 "client_id": self.client_id,
-                "client_secret": self.client_secret}
+                "client_secret": self.client_secret
+            }
 
             def postRequest(url, params):
                 req = urllib.request.Request(url)
@@ -81,12 +82,9 @@ class Netatmo_Client:
         return self.access_token
 
     def get_data(self, token):
-        """si funciona"""
-
         headers = {
             'accept': 'application/json',
-            'Authorization': 'Bearer ' + token,
-
+            'Authorization': 'Bearer ' + token
         }
 
         response = requests.get('https://api.netatmo.com/api/gethomecoachsdata', headers=headers, )
@@ -95,7 +93,7 @@ class Netatmo_Client:
 
         return rjson
 
-    # deserialize json to object
+    '''
     def deserialize_devices(self, j):
         # pprint(j)
         devices = []
@@ -152,7 +150,7 @@ class Netatmo_Client:
             # print(vars(deviceObj))
             # print(vars(deviceObj.dashboard_data))
         return devices
-
+'''
 
 
 
