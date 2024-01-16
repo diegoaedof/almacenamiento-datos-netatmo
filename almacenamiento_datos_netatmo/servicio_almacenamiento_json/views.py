@@ -7,7 +7,5 @@ netatmo = NetatmoClient()
 def index(request):
     return redirect(netatmo.login())
 
-
-
-
-# Create your views here.
+def authorize():
+    pass
