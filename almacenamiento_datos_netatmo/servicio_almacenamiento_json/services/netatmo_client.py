@@ -12,7 +12,7 @@ class NetatmoClient:
         self.access_token = None
         self.refresh_token_ = None
         self.expires_in = None
-        self.redirect_uri = "localhost:8000"  # cambiar por la url de la vista que corresponda.
+        self.redirect_uri = "localhost:8000/authorize"  # cambiar por la url de la vista que corresponda.
         self.data = None
 
     def login(self):
@@ -77,4 +77,11 @@ class NetatmoClient:
             return response
 
         return
+
+    def get_homecoach_data(self, token, device=None):
+
+        pass
+
+    def get_measure(self, token, device, scale, data_type, date_begin=None, date_end=None, limit=None, optimize=False, real_time=True):
+        pass
 

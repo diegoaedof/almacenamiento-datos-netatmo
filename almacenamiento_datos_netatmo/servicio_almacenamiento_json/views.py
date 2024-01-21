@@ -22,6 +22,13 @@ def authorize(request: HttpRequest):
     request.session['access_token'] = client.access_token
     request.session['refresh_token'] = client.refresh_token_
 
+    return redirect()
+
+def deserializer(request):
+
+    data = client.get_homecoach_data(request.session['access_token'])
+
+
 
 
 
