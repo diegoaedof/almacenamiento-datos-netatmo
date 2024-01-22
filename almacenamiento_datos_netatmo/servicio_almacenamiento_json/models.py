@@ -12,12 +12,14 @@ class Users(models.Model):
     pressureunit = models.IntegerField()
     feel_like_algo = models.IntegerField()
 
+
 class Place(models.Model):
     place_id = models.AutoField(primary_key=True)
     altitude = models.IntegerField()
     country = models.CharField(max_length=255)
     timezone = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
+
 
 class Device(models.Model):
     device_id = models.AutoField(primary_key=True)

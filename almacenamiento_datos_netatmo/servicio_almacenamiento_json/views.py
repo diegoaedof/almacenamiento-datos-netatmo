@@ -22,8 +22,10 @@ def authorize(request: HttpRequest):
     request.session['access_token'] = client.access_token
     request.session['refresh_token'] = client.refresh_token_
 
-    return redirect()
+    return redirect('deserialize')
 
-def deserializer(request):
 
-    data = client.get_homecoach_data(request.session['access_token'])
+'''BENJA DEBE TRABAJAR EN DESERIALIZE'''
+def deserialize(request):
+
+    pass
