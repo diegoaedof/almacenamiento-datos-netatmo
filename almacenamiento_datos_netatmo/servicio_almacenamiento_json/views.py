@@ -32,25 +32,27 @@ def deserialize(request):
     token = request.session['access_token']
 
     response_json = client.get_homecoach_data(token)
-
-    usuario = Users.objects.create(
-        mail = response_json['body']['user']['mail'],
-        lang = response_json['body']['user']['administrative']['lang'],
-        reg_locale = response_json['body']['user']['administrative']['reg_locale'],
-        country = response_json['body']['user']['administrative']['country'],
-        unit = response_json['body']['user']['administrative']['unit'],
-        windunit = response_json['body']['user']['administrative']['windunit'],
-        pressureunit = response_json['body']['user']['administrative']['pressureunit'],
-        feel_like_algo = response_json['body']['user']['administrative']['feel_like_algo']
-    )
-
+        
+    try:
+        usuario = Users.objects.get(mail=response_json['body']['user']['mail'])
+    except Users.DoesNotExist:
+        usuario = Users.objects.create(
+            mail = response_json['body']['user']['mail'],
+            lang = response_json['body']['user']['administrative']['lang'],
+            reg_locale = response_json['body']['user']['administrative']['reg_locale'],
+            country = response_json['body']['user']['administrative']['country'],
+            unit = response_json['body']['user']['administrative']['unit'],
+            windunit = response_json['body']['user']['administrative']['windunit'],
+            pressureunit = response_json['body']['user']['administrative']['pressureunit'],
+            feel_like_algo = response_json['body']['user']['administrative']['feel_like_algo']
+        )
 
 
     for data in response_json['body']['devices']:
 
         try: 
             dispositivo = Device.objects.get(_id=data['_id'])
-        
+
         except Device.DoesNotExist:
             lugar = Place.objects.create(
                 altitude= data['place']['altitude'],
@@ -59,7 +61,7 @@ def deserialize(request):
                 location= str(data['place']['location']),
             )
     
-            dispositivo = Device.objects.create(# crear cada try except para restringuir si se resiven y reescriben datos e una id unica
+            dispositivo = Device.objects.create(
                 user = usuario,
                 place = lugar,
                 _id = data['_id'],
