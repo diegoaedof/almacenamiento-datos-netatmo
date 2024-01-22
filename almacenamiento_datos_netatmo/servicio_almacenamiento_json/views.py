@@ -2,7 +2,7 @@ from django.http import HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
 import requests
 from .models import DashboardData, Device, Place, Users
-from services.netatmo_client import NetatmoClient
+from .services.netatmo_client import NetatmoClient
 
 client = NetatmoClient()
 
@@ -34,14 +34,14 @@ def deserialize(request):
     response_json = client.get_homecoach_data(token)
 
     usuario = Users.objects.create(
-        mail = data['mail'],
-        lang = data['lang'],
-        reg_locale = data['reg_locale'],
-        country = data['country'],
-        unit = data['unit'],
-        windunit = data['windunit'],
-        pressureunit = data['pressureunit'],
-        feel_like_algo = data['feel_like_algo']
+        mail = response_json['body']['user']['mail'],
+        lang = response_json['body']['user']['administrative']['lang'],
+        reg_locale = response_json['body']['user']['administrative']['reg_locale'],
+        country = response_json['body']['user']['administrative']['country'],
+        unit = response_json['body']['user']['administrative']['unit'],
+        windunit = response_json['body']['user']['administrative']['windunit'],
+        pressureunit = response_json['body']['user']['administrative']['pressureunit'],
+        feel_like_algo = response_json['body']['user']['administrative']['feel_like_algo']
     )
 
 
@@ -52,40 +52,38 @@ def deserialize(request):
             altitude= data['place']['altitude'],
             country = data['place']['country'],
             timezone= data['place']['timezone'],
-            location= ,#transformr a texto
+            location= str(data['place']['location']),
         )
 
-        dispositivo = Device.objects.create(
+        dispositivo = Device.objects.create(# crear cada try except para restringuir si se resiven y reescriben datos e una id unica
             user = usuario,
             place = lugar,
             _id = data['_id'],
             date_setup = data['date_setup'],
             last_setup = data['last_setup'],
-            type_ = data['type'],
+            device_type= data['type'],
             last_status_store = data['last_status_store'],
             firmware = data['firmware'],
-            last_upgrade = data[''],
+            last_upgrade = data['wifi_status'],
             wifi_status = data['wifi_status'],
             reachable = data['reachable'],
             co2_calibrating = data['co2_calibrating'],
             station_name = data['station_name'],
             read_only = True,
-            data_type = ,#transformar texto
+            data_type = str(data['data_type']),
             subtype = data['subtype'],
         )
 
-
         DashboardData.objects.create(
-            data_id = data['_id'],
             device = dispositivo,
-            time_utc = data['time_utc'],
-            temperature = data['Temperature'],
-            co2 = data['CO2'],
-            humidity = data['Humidity'],
-            noise = data['Noise'],
-            pressure = data['Pressure'],
-            absolutePressure = data['AbsolutePressure'],
-            health_idx = data['health_idx']
+            time_utc = data['dashboard_data']['time_utc'],
+            temperature = data['dashboard_data']['Temperature'],
+            co2 = data['dashboard_data']['CO2'],
+            humidity = data['dashboard_data']['Humidity'],
+            noise = data['dashboard_data']['Noise'],
+            pressure = data['dashboard_data']['Pressure'],
+            absolutePressure = data['dashboard_data']['AbsolutePressure'],
+            health_idx = data['dashboard_data']['health_idx']
         )
 
 
