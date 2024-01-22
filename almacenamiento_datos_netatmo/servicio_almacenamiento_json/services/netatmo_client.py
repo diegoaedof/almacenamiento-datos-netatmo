@@ -91,7 +91,7 @@ class NetatmoClient:
                 'device_id': device
             }
 
-        response_json = requests.get('/api/gethomecoachsdata', headers=headers, params=params).json()
+        response_json = requests.get('https://api.netatmo.com/api/gethomecoachsdata', headers=headers, params=params).json()
 
         return response_json
 
