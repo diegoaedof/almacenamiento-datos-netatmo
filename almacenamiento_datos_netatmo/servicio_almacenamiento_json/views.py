@@ -1,7 +1,8 @@
 from django.http import HttpRequest
+
 from django.shortcuts import render, redirect
 import requests
-from services.netatmo_client import NetatmoClient
+from .services.netatmo_client import NetatmoClient
 
 client = NetatmoClient()
 
@@ -11,6 +12,7 @@ def index(request):
 
 
 def authorize(request: HttpRequest):
+
     state = request.GET.get('state')
     code = request.GET.get('code')
 

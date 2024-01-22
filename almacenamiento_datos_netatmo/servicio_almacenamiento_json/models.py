@@ -28,7 +28,7 @@ class Device(models.Model):
     _id = models.CharField(max_length=17, unique=True)
     date_setup = models.BigIntegerField()
     last_setup = models.BigIntegerField()
-    type_ = models.CharField(max_length=255)
+    device_type = models.CharField(max_length=255)
     last_status_store = models.BigIntegerField()
     firmware = models.IntegerField()
     last_upgrade = models.IntegerField()
