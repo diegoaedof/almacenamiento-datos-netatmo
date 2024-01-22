@@ -96,6 +96,31 @@ class NetatmoClient:
 
         return response_json
 
-    def get_measure(self, token, device, scale, data_type, date_begin=None, date_end=None, limit=None, optimize=False, real_time=True):
-        pass
+    def get_measure(self, token, device, scale, data_type,
+                    date_begin=None, date_end=None, limit=None, optimize=True, real_time=False):
+        headers = {
+            'Host': 'api.netatmo.com',
+            'accept': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+
+        params = {
+            'device_id': device,
+            'scale': scale,
+            'type': data_type
+        }
+        if date_begin is not None:
+            params['date_begin'] = int(date_begin)
+        if date_end is not None:
+            params['date_end'] = int(date_end)
+        if limit is not None:
+            params['limit'] = int(limit)
+        if optimize is not True:
+            params['optimize'] = 'false'
+        if real_time is not False:
+            params['real_time'] = 'true'
+
+        response_json = requests.get('/api/getmeasure', headers=headers, params=params).json()
+
+        return response_json
 
