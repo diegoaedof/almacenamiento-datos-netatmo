@@ -72,15 +72,29 @@ class NetatmoClient:
             self.refresh_token_ = response['refresh_token']
             self.expires_in = int(response['expires_in']) + time.time()
 
-            print("Se ha actualizado el token")
+            print("Se ha actualizado el token\n========================")
 
             return response
 
         return
 
     def get_homecoach_data(self, token, device=None):
+        headers = {
+            'Host': 'api.netatmo.com',
+            'accept': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
 
-        pass
+        params = {}
+
+        if device is not None:
+            params = {
+                'device_id': device
+            }
+
+        response_json = requests.get('/api/gethomecoachsdata', headers=headers, params=params).json()
+
+        return response_json
 
     def get_measure(self, token, device, scale, data_type, date_begin=None, date_end=None, limit=None, optimize=False, real_time=True):
         pass
