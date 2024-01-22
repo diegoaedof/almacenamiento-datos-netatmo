@@ -53,13 +53,13 @@ def deserialize(request):
         try: 
             dispositivo = Device.objects.get(_id=data['_id'])
 
-        except Device.DoesNotExist:
             lugar = Place.objects.create(
                 altitude= data['place']['altitude'],
                 country = data['place']['country'],
                 timezone= data['place']['timezone'],
                 location= str(data['place']['location']),
             )
+        except Device.DoesNotExist:
     
             dispositivo = Device.objects.create(
                 user = usuario,
@@ -80,7 +80,7 @@ def deserialize(request):
                 subtype = data['subtype'],
                 )
 
-            DashboardData.objects.create(
+    DashboardData.objects.create(
                 device = dispositivo,
                 time_utc = data['dashboard_data']['time_utc'],
                 temperature = data['dashboard_data']['Temperature'],
