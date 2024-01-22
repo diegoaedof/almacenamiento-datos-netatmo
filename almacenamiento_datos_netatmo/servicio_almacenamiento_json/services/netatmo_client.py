@@ -12,11 +12,11 @@ class NetatmoClient:
         self.access_token = None
         self.refresh_token_ = None
         self.expires_in = None
-        self.redirect_uri = "localhost:8000/authorize"  # cambiar por la url de la vista que corresponda.
+        self.redirect_uri = "http://127.0.0.1:8000/authorize"  # cambiar por la url de la vista que corresponda.
         self.data = None
 
     def login(self):
-        url = "https://api.netatmo.com/oauth2/authorize?"
+        url = 'https://api.netatmo.com/oauth2/authorize'
         params = {
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
@@ -26,11 +26,10 @@ class NetatmoClient:
 
         headers = {}
 
-        return requests.post(url, headers=headers, params=params)
+        return requests.post(url=url, headers=headers, params=params).url
 
     def get_access_token(self, code):
         headers = {
-            'Host': 'api.netatmo.com',
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         }
 
@@ -43,7 +42,7 @@ class NetatmoClient:
             'scope': self.scope,
         }
 
-        response_json = requests.post('/oauth2/token', headers=headers, data=data).json()
+        response_json = requests.post('https://api.netatmo.com/oauth2/token', headers=headers, data=data).json()
 
         self.access_token = response_json['access_token']
         self.refresh_token_ = response_json['refresh_token']
@@ -55,7 +54,7 @@ class NetatmoClient:
 
         if self.expires_in < time.time():
             headers = {
-                'Host': 'api.netatmo.com',
+                'Host': 'http://api.netatmo.com',
                 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
             }
 
@@ -96,6 +95,31 @@ class NetatmoClient:
 
         return response_json
 
-    def get_measure(self, token, device, scale, data_type, date_begin=None, date_end=None, limit=None, optimize=False, real_time=True):
-        pass
+    def get_measure(self, token, device, scale, data_type,
+                    date_begin=None, date_end=None, limit=None, optimize=True, real_time=False):
+        headers = {
+            'Host': 'api.netatmo.com',
+            'accept': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+
+        params = {
+            'device_id': device,
+            'scale': scale,
+            'type': data_type
+        }
+        if date_begin is not None:
+            params['date_begin'] = int(date_begin)
+        if date_end is not None:
+            params['date_end'] = int(date_end)
+        if limit is not None:
+            params['limit'] = int(limit)
+        if optimize is not True:
+            params['optimize'] = 'false'
+        if real_time is not False:
+            params['real_time'] = 'true'
+
+        response_json = requests.get('/api/getmeasure', headers=headers, params=params).json()
+
+        return response_json
 

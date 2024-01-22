@@ -12,6 +12,7 @@ def index(request):
 
 
 def authorize(request: HttpRequest):
+
     state = request.GET.get('state')
     code = request.GET.get('code')
 

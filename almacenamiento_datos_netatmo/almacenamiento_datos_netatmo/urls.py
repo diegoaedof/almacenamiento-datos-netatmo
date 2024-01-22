@@ -16,11 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from almacenamiento_datos_netatmo.servicio_almacenamiento_json import views
+from servicio_almacenamiento_json import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index(), name='index'),
-    path('authorize/', views.authorize(), name='authorize'),
-    path('deserialize/', views.deserialize(), name='deserialize')
+    path('', views.index, name='index'),
+    path('authorize/', views.authorize, name='authorize'),
+    path('deserialize/', views.deserialize, name='deserialize')
 ]
