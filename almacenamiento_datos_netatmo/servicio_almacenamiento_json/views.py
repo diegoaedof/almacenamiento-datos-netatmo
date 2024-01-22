@@ -1,4 +1,4 @@
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 import requests
 from .models import DashboardData, Device, Place, Users
@@ -48,42 +48,46 @@ def deserialize(request):
 
     for data in response_json['body']['devices']:
 
-        lugar = Place.objects.create(
-            altitude= data['place']['altitude'],
-            country = data['place']['country'],
-            timezone= data['place']['timezone'],
-            location= str(data['place']['location']),
-        )
+        try: 
+            dispositivo = Device.objects.get(_id=data['_id'])
+        
+        except Device.DoesNotExist:
+            lugar = Place.objects.create(
+                altitude= data['place']['altitude'],
+                country = data['place']['country'],
+                timezone= data['place']['timezone'],
+                location= str(data['place']['location']),
+            )
+    
+            dispositivo = Device.objects.create(# crear cada try except para restringuir si se resiven y reescriben datos e una id unica
+                user = usuario,
+                place = lugar,
+                _id = data['_id'],
+                date_setup = data['date_setup'],
+                last_setup = data['last_setup'],
+                device_type= data['type'],
+                last_status_store = data['last_status_store'],
+                firmware = data['firmware'],
+                last_upgrade = data['wifi_status'],
+                wifi_status = data['wifi_status'],
+                reachable = data['reachable'],
+                co2_calibrating = data['co2_calibrating'],
+                station_name = data['station_name'],
+                read_only = True,
+                data_type = str(data['data_type']),
+                subtype = data['subtype'],
+                )
 
-        dispositivo = Device.objects.create(# crear cada try except para restringuir si se resiven y reescriben datos e una id unica
-            user = usuario,
-            place = lugar,
-            _id = data['_id'],
-            date_setup = data['date_setup'],
-            last_setup = data['last_setup'],
-            device_type= data['type'],
-            last_status_store = data['last_status_store'],
-            firmware = data['firmware'],
-            last_upgrade = data['wifi_status'],
-            wifi_status = data['wifi_status'],
-            reachable = data['reachable'],
-            co2_calibrating = data['co2_calibrating'],
-            station_name = data['station_name'],
-            read_only = True,
-            data_type = str(data['data_type']),
-            subtype = data['subtype'],
-        )
-
-        DashboardData.objects.create(
-            device = dispositivo,
-            time_utc = data['dashboard_data']['time_utc'],
-            temperature = data['dashboard_data']['Temperature'],
-            co2 = data['dashboard_data']['CO2'],
-            humidity = data['dashboard_data']['Humidity'],
-            noise = data['dashboard_data']['Noise'],
-            pressure = data['dashboard_data']['Pressure'],
-            absolutePressure = data['dashboard_data']['AbsolutePressure'],
-            health_idx = data['dashboard_data']['health_idx']
-        )
-
+            DashboardData.objects.create(
+                device = dispositivo,
+                time_utc = data['dashboard_data']['time_utc'],
+                temperature = data['dashboard_data']['Temperature'],
+                co2 = data['dashboard_data']['CO2'],
+                humidity = data['dashboard_data']['Humidity'],
+                noise = data['dashboard_data']['Noise'],
+                pressure = data['dashboard_data']['Pressure'],
+                absolutePressure = data['dashboard_data']['AbsolutePressure'],
+                health_idx = data['dashboard_data']['health_idx']
+            )
+    return HttpResponse('datos almacenados')
 
