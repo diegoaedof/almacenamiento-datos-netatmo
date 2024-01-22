@@ -72,7 +72,7 @@ class NetatmoClient:
             self.refresh_token_ = response['refresh_token']
             self.expires_in = int(response['expires_in']) + time.time()
 
-            print("Se ha actualizado el token")
+            print("Se ha actualizado el token\n========================")
 
             return response
 
