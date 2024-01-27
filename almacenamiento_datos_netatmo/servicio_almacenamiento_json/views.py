@@ -80,7 +80,10 @@ def deserialize(request):
                 subtype = data['subtype'],
                 )
 
-    DashboardData.objects.create(
+        if DashboardData.DoesNotExist:
+            return HttpResponse('Dispocitivo no existe')
+        else:
+            DashboardData.objects.create(
                 device = dispositivo,
                 time_utc = data['dashboard_data']['time_utc'],
                 temperature = data['dashboard_data']['Temperature'],
@@ -91,5 +94,6 @@ def deserialize(request):
                 absolutePressure = data['dashboard_data']['AbsolutePressure'],
                 health_idx = data['dashboard_data']['health_idx']
             )
+
     return HttpResponse('datos almacenados')
 
