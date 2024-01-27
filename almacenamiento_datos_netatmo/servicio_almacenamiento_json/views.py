@@ -60,7 +60,13 @@ def deserialize(request):
                 location= str(data['place']['location']),
             )
         except Device.DoesNotExist:
-    
+            lugar = Place.objects.create(
+                altitude=data['place']['altitude'],
+                country=data['place']['country'],
+                timezone=data['place']['timezone'],
+                location=str(data['place']['location']),
+            )
+
             dispositivo = Device.objects.create(
                 user = usuario,
                 place = lugar,
@@ -82,7 +88,7 @@ def deserialize(request):
 
     DashboardData.objects.create(
                 device = dispositivo,
-                time_utc = data['dashboard_data']['time_utc'],
+                time_utc=data['dashboard_data']['time_utc'],
                 temperature = data['dashboard_data']['Temperature'],
                 co2 = data['dashboard_data']['CO2'],
                 humidity = data['dashboard_data']['Humidity'],
@@ -91,5 +97,5 @@ def deserialize(request):
                 absolutePressure = data['dashboard_data']['AbsolutePressure'],
                 health_idx = data['dashboard_data']['health_idx']
             )
-    return HttpResponse('datos almacenados')
+    return render(request, 'index.html')
 
