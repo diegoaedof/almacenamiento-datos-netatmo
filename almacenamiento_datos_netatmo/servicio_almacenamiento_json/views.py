@@ -1,3 +1,5 @@
+import threading
+import time
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 import requests
@@ -28,10 +30,15 @@ def authorize(request: HttpRequest):
 
 
 '''BENJA DEBE TRABAJAR EN DESERIALIZE'''
+from django.db import transaction
+
+
+@transaction.atomic
 def deserialize(request):
     token = request.session['access_token']
 
     response_json = client.get_homecoach_data(token)
+<<<<<<< HEAD
         
     try:
         usuario = Users.objects.get(mail=response_json['body']['user']['mail'])
@@ -47,9 +54,34 @@ def deserialize(request):
             feel_like_algo = response_json['body']['user']['administrative']['feel_like_algo']
         )
 
+=======
+
+    usuario_data = response_json['body']['user']['administrative']
+
+    usuario, created = Users.objects.get_or_create(
+        mail=response_json['body']['user']['mail'],
+        defaults={
+            'lang': usuario_data['lang'],
+            'reg_locale': usuario_data['reg_locale'],
+            'country': usuario_data['country'],
+            'unit': usuario_data['unit'],
+            'windunit': usuario_data['windunit'],
+            'pressureunit': usuario_data['pressureunit'],
+            'feel_like_algo': usuario_data['feel_like_algo'],
+        }
+    )
+>>>>>>> mario
 
     for data in response_json['body']['devices']:
+        lugar_data = data['place']
+        lugar, _ = Place.objects.get_or_create(
+            altitude=lugar_data['altitude'],
+            country=lugar_data['country'],
+            timezone=lugar_data['timezone'],
+            location=str(lugar_data['location']),
+        )
 
+<<<<<<< HEAD
         try: 
             dispositivo = Device.objects.get(_id=data['_id'])
 
@@ -95,5 +127,56 @@ def deserialize(request):
                 health_idx = data['dashboard_data']['health_idx']
             )
 
+=======
+        dispositivo, created = Device.objects.get_or_create(
+            _id=data['_id'],
+            defaults={
+                'user': usuario,
+                'place': lugar,
+                'date_setup': data.get('date_setup'),
+                'last_setup': data.get('last_setup'),
+                'device_type': data.get('type'),
+                'last_status_store': data.get('last_status_store'),
+                'firmware': data.get('firmware'),
+                'last_upgrade': data.get('wifi_status'),
+                'wifi_status': data.get('wifi_status'),
+                'reachable': data.get('reachable'),
+                'co2_calibrating': data.get('co2_calibrating'),
+                'station_name': data.get('station_name'),
+                'read_only': True,
+                'data_type': str(data.get('data_type')),
+                'subtype': data.get('subtype'),
+            }
+        )
+
+        # Verifica si 'dashboard_data' está presente antes de intentar acceder a las claves específicas
+        if 'dashboard_data' in data:
+            dashboard_data = data['dashboard_data']
+            
+            # Verifica si los datos del dashboard son diferentes a los existentes
+            if not DashboardData.objects.filter(
+                device=dispositivo,
+                time_utc=dashboard_data.get('time_utc'),
+                temperature=dashboard_data.get('Temperature'),
+                co2=dashboard_data.get('CO2'),
+                humidity=dashboard_data.get('Humidity'),
+                noise=dashboard_data.get('Noise'),
+                pressure=dashboard_data.get('Pressure'),
+                absolutePressure=dashboard_data.get('AbsolutePressure'),
+                health_idx=dashboard_data.get('health_idx')
+            ).exists():
+                DashboardData.objects.create(
+                    device=dispositivo,
+                    time_utc=dashboard_data.get('time_utc'),
+                    temperature=dashboard_data.get('Temperature'),
+                    co2=dashboard_data.get('CO2'),
+                    humidity=dashboard_data.get('Humidity'),
+                    noise=dashboard_data.get('Noise'),
+                    pressure=dashboard_data.get('Pressure'),
+                    absolutePressure=dashboard_data.get('AbsolutePressure'),
+                    health_idx=dashboard_data.get('health_idx')
+                )
+
+>>>>>>> mario
     return HttpResponse('datos almacenados')
 
