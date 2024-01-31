@@ -44,7 +44,7 @@ class Device(models.Model):
 class DashboardData(models.Model):
     data_id = models.AutoField(primary_key=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    time_utc = models.BigIntegerField()
+    time_utc = models.DateTimeField()
     temperature = models.FloatField()
     co2 = models.IntegerField()
     humidity = models.IntegerField()

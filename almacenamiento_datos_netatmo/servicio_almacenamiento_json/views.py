@@ -5,6 +5,8 @@ from django.shortcuts import render, redirect
 import requests
 from .models import DashboardData, Device, Place, Users
 from .services.netatmo_client import NetatmoClient
+from datetime import datetime
+
 
 client = NetatmoClient()
 
@@ -63,54 +65,55 @@ def deserialize(request):
             location=str(lugar_data['location']),
         )
 
-        dispositivo, created = Device.objects.get_or_create(
-            _id=data['_id'],
-            defaults={
-                'user': usuario,
-                'place': lugar,
-                'date_setup': data.get('date_setup'),
-                'last_setup': data.get('last_setup'),
-                'device_type': data.get('type'),
-                'last_status_store': data.get('last_status_store'),
-                'firmware': data.get('firmware'),
-                'last_upgrade': data.get('wifi_status'),
-                'wifi_status': data.get('wifi_status'),
-                'reachable': data.get('reachable'),
-                'co2_calibrating': data.get('co2_calibrating'),
-                'station_name': data.get('station_name'),
-                'read_only': True,
-                'data_type': str(data.get('data_type')),
-                'subtype': data.get('subtype'),
-            }
-        )
 
-        # Verifica si 'dashboard_data' está presente antes de intentar acceder a las claves específicas
-        if 'dashboard_data' in data:
-            dashboard_data = data['dashboard_data']
-            
-            # Verifica si los datos del dashboard son diferentes a los existentes
-            if not DashboardData.objects.filter(
-                device=dispositivo,
-                time_utc=dashboard_data.get('time_utc'),
-                temperature=dashboard_data.get('Temperature'),
-                co2=dashboard_data.get('CO2'),
-                humidity=dashboard_data.get('Humidity'),
-                noise=dashboard_data.get('Noise'),
-                pressure=dashboard_data.get('Pressure'),
-                absolutePressure=dashboard_data.get('AbsolutePressure'),
-                health_idx=dashboard_data.get('health_idx')
-            ).exists():
-                DashboardData.objects.create(
-                    device=dispositivo,
-                    time_utc=dashboard_data.get('time_utc'),
-                    temperature=dashboard_data.get('Temperature'),
-                    co2=dashboard_data.get('CO2'),
-                    humidity=dashboard_data.get('Humidity'),
-                    noise=dashboard_data.get('Noise'),
-                    pressure=dashboard_data.get('Pressure'),
-                    absolutePressure=dashboard_data.get('AbsolutePressure'),
-                    health_idx=dashboard_data.get('health_idx')
+        try: 
+            dispositivo = Device.objects.get(_id=data['_id'])
+        except Device.DoesNotExist:
+                 
+            lugar = Place.objects.create(
+                altitude= data['place']['altitude'],
+                country = data['place']['country'],
+                timezone= data['place']['timezone'],
+                location= str(data['place']['location']),
+            )
+        
+            id=data['_id']
+            if id == Device:
+                pass
+            else:
+                dispositivo = Device.objects.create(
+                    user = usuario,
+                    place = lugar,
+                    _id = data['_id'],
+                    date_setup = data['date_setup'],
+                    last_setup = data['last_setup'],
+                    device_type= data['type'],
+                    last_status_store = data['last_status_store'],
+                    firmware = data['firmware'],
+                    last_upgrade = data['wifi_status'],
+                    wifi_status = data['wifi_status'],
+                    reachable = data['reachable'],
+                    co2_calibrating = data['co2_calibrating'],
+                    station_name = data['station_name'],
+                    read_only = True,
+                    data_type = str(data['data_type']),
+                    subtype = data['subtype'],
                 )
+
+    timestamp = data['dashboard_data']['time_utc'] #se guardael dato entregado en formato time_utc, ej:1706403169
+    time_utc_datetime = datetime.utcfromtimestamp(timestamp) #se importa el modulo datetime para realizar la transformación con el metodo correspondiente
+    DashboardData.objects.create(
+            device=dispositivo,
+            time_utc=time_utc_datetime, # se almacena dato transformado
+            temperature=data['dashboard_data']['Temperature'],
+            co2=data['dashboard_data']['CO2'],
+            humidity=data['dashboard_data']['Humidity'],
+            noise=data['dashboard_data']['Noise'],
+            pressure=data['dashboard_data']['Pressure'],
+            absolutePressure=data['dashboard_data']['AbsolutePressure'],
+            health_idx=data['dashboard_data']['health_idx']
+        )
+                
 
     return HttpResponse('datos almacenados')
 
