@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 import requests
 from .models import DashboardData, Device, Place, Users
 from .services.netatmo_client import NetatmoClient
+from datetime import datetime
+
 
 client = NetatmoClient()
 
@@ -84,9 +86,11 @@ def deserialize(request):
                     subtype = data['subtype'],
                 )
 
+    timestamp = data['dashboard_data']['time_utc'] #se guardael dato entregado en formato time_utc, ej:1706403169
+    time_utc_datetime = datetime.utcfromtimestamp(timestamp) #se importa el modulo datetime para realizar la transformación con el metodo correspondiente
     DashboardData.objects.create(
             device=dispositivo,
-            time_utc=data['dashboard_data']['time_utc'],
+            time_utc=time_utc_datetime, # se almacena dato transformado
             temperature=data['dashboard_data']['Temperature'],
             co2=data['dashboard_data']['CO2'],
             humidity=data['dashboard_data']['Humidity'],
